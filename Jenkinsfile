@@ -1,22 +1,26 @@
 pipeline {
-    agent any
+    agent {
+        // Esta imagen tiene Docker y Git preinstalados
+        docker { 
+            image 'docker:latest' 
+            // Esto conecta el contenedor con el Docker de tu PC (CachyOS)
+            args '-v /var/run/docker.sock:/var/run/docker.sock' 
+        }
+    }
 
     stages {
         stage('Construir') {
             steps {
-                // Primero, una prueba de diagnóstico rápida
-                sh 'ls -l /usr/bin/docker || echo "Docker no está en /usr/bin"'
-                
-                // Intentamos la ejecución con la ruta absoluta absoluta
-                sh '/usr/bin/docker build -t hola-mundo-node:latest .'
+                // Ahora 'docker' estará disponible en el PATH de este agente
+                sh 'docker build -t hola-mundo-node:latest .'
             }
         }
         stage('Ejecutar') {
             steps {
                 sh '''
-                    /usr/bin/docker stop hola-mundo-node || true
-                    /usr/bin/docker rm hola-mundo-node || true
-                    /usr/bin/docker run -d --name hola-mundo-node -p 3000:3000 hola-mundo-node:latest
+                    docker stop hola-mundo-node || true
+                    docker rm hola-mundo-node || true
+                    docker run -d --name hola-mundo-node -p 3000:3000 hola-mundo-node:latest
                 '''
             }
         }
