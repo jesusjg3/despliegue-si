@@ -2,18 +2,17 @@ pipeline {
     agent any
 
     tools {
-        nodejs "Nodesi" // El nombre exacto que configuraste
-        dockerTool 'Docker' // El nombre que configuramos en el paso anterior
+        nodejs "Nodesi" // Mantenemos solo Node, que sí está configurado
     }
 
     stages {
-        stage('Construir Imagen') {
+        stage('Construir') {
             steps {
-                // Ahora Jenkins sabe dónde está el binario gracias a 'dockerTool'
+                // Aquí ya no hace falta declarar la tool, Jenkins usará el 'docker' del sistema
                 sh 'docker build -t hola-mundo-node:latest .'
             }
         }
-        stage('Ejecutar Contenedor') {
+        stage('Ejecutar') {
             steps {
                 sh '''
                     docker stop hola-mundo-node || true
