@@ -2,18 +2,19 @@ pipeline {
     agent any
 
     stages {
-        stage('Construir') {
+        stage('Construir Imagen Docker') {
             steps {
-                // Forzamos el uso del binario de Docker del host
-                sh '/usr/bin/docker build -t hola-mundo-node:latest .'
+                // Ahora usará el Docker moderno de tu máquina, con BuildKit activo por defecto
+                sh 'docker build -t hola-mundo-node:latest .'
             }
         }
-        stage('Ejecutar') {
+
+        stage('Ejecutar Contenedor Node.js') {
             steps {
                 sh '''
-                    /usr/bin/docker stop hola-mundo-node || true
-                    /usr/bin/docker rm hola-mundo-node || true
-                    /usr/bin/docker run -d --name hola-mundo-node -p 3000:3000 hola-mundo-node:latest
+                    docker stop hola-mundo-node || true
+                    docker rm hola-mundo-node || true
+                    docker run -d --name hola-mundo-node -p 3000:3000 hola-mundo-node:latest
                 '''
             }
         }
