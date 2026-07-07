@@ -1,44 +1,26 @@
 pipeline {
-    // Usamos 'any' porque el agente es el nodo maestro (donde instalamos docker)
     agent any
 
     tools {
-        // Asegúrate que estos nombres coincidan EXACTAMENTE con los que pusiste en 'Manage Jenkins -> Tools'
-        nodejs "Nodesi" 
-        // Si no tienes configurada la herramienta Docker en Jenkins, 
-        // comenta o elimina la siguiente línea para evitar errores de búsqueda:
-        // dockerTool 'Docker' 
+        nodejs "Nodesi" // El nombre exacto que configuraste
+        dockerTool 'Docker' // El nombre que configuramos en el paso anterior
     }
 
     stages {
-        stage('Construir Imagen Docker') {
+        stage('Construir Imagen') {
             steps {
-                // Usamos 'sh' para llamar al binario que instalamos en el contenedor
+                // Ahora Jenkins sabe dónde está el binario gracias a 'dockerTool'
                 sh 'docker build -t hola-mundo-node:latest .'
             }
         }
-
-        stage('Ejecutar Contenedor Node.js') {
+        stage('Ejecutar Contenedor') {
             steps {
                 sh '''
-                    # Usamos || true para que el pipeline no falle si el contenedor no existe
                     docker stop hola-mundo-node || true
                     docker rm hola-mundo-node || true
-
-                    # Ejecutamos el nuevo contenedor
                     docker run -d --name hola-mundo-node -p 3000:3000 hola-mundo-node:latest
                 '''
             }
-        }
-    }
-    
-    // Opcional: Limpieza automática al terminar
-    post {
-        always {
-            echo 'Pipeline finalizado.'
-        }
-        failure {
-            echo 'Algo salió mal, revisa los logs anteriores.'
         }
     }
 }
